@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  avatar    String?
+  creator   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  artistProfile ArtistProfile?
+  songs         Song[]
+  likedSongs    LikedSong[]
+  playlists     Playlist[]
+
+  @@map("users")
+}
+
+model ArtistProfile {
+  id          String  @id @default(uuid())
+  userId      String  @unique @map("user_id")
+  artistName  String  @map("artist_name")
+  bio         String?
+  genre       String?
+  image       String?
+  website     String?
+  instagram   String?
+  verified    Boolean @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  songs  Song[]
+  albums Album[]
+
+  @@map("artist_profiles")
+}
+
+model Album {
+  id          String   @id @default(uuid())
+  artistId    String   @map("artist_id")
+  title       String
+  cover       String?
+  releaseDate DateTime? @map("release_date")
+  genre       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  artist ArtistProfile @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  songs  Song[]
+
+  @@map("albums")
+}
+
+model Song {
+  id         String   @id @default(uuid())
+  ownerId    String   @map("owner_id")
+  artistId   String?  @map("artist_id")
+  albumId    String?  @map("album_id")
+  title      String
+  duration   Float    @default(0)
+  genre      String?
+  filePath   String   @map("file_path")
+  coverImage String?  @map("cover_image")
+  plays      Int      @default(0)
+  isPublic   Boolean  @default(true) @map("is_public")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  owner    User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  artist   ArtistProfile? @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  album    Album?        @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  likedBy  LikedSong[]
+  inPlaylists PlaylistSong[]
+
+  @@map("songs")
+}
+
+model LikedSong {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  songId    String   @map("song_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId])
+  @@map("liked_songs")
+}
+
+model Playlist {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  cover     String?
+  isPublic  Boolean  @default(true) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  songs PlaylistSong[]
+
+  @@map("playlists")
+}
+
+model PlaylistSong {
+  id         String   @id @default(uuid())
+  playlistId String   @map("playlist_id")
+  songId     String   @map("song_id")
+  position   Int      @default(0)
+  addedAt    DateTime @default(now()) @map("added_at")
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, songId])
+  @@map("playlist_songs")
+}
