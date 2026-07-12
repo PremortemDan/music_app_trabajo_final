@@ -17,7 +17,9 @@ export async function streamSong(req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const filePath = path.join(__dirname, '..', '..', song.filePath);
+    // Eliminar slash inicial si existe para que path.join funcione correctamente
+    const relativePath = song.filePath.startsWith('/') ? song.filePath.slice(1) : song.filePath;
+    const filePath = path.join(__dirname, '..', '..', relativePath);
 
     // Verificar que el archivo existe
     if (!fs.existsSync(filePath)) {
