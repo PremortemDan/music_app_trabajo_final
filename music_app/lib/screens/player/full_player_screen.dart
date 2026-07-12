@@ -1,10 +1,53 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/song_provider.dart';
 import '../../models/song_model.dart';
 
-class FullPlayerScreen extends StatelessWidget {
+class FullPlayerScreen extends StatefulWidget {
   const FullPlayerScreen({super.key});
+
+  @override
+  State<FullPlayerScreen> createState() => _FullPlayerScreenState();
+}
+
+class _FullPlayerScreenState extends State<FullPlayerScreen> {
+  late StreamSubscription _positionSub;
+  late StreamSubscription _durationSub;
+  double _sliderPosition = 0;
+  bool _isDragging = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<SongProvider>();
+    _positionSub = provider.player.positionStream.listen((pos) {
+      if (!_isDragging) {
+        setState(() {
+          _sliderPosition = pos.inSeconds.toDouble();
+        });
+      }
+    });
+    _durationSub = provider.player.durationStream.listen((dur) {
+      if (dur != null) {
+        setState(() {}); // Actualizar duración total
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _positionSub.cancel();
+    _durationSub.cancel();
+    super.dispose();
+  }
+
+  String _formatTime(double seconds) {
+    final total = seconds.toInt();
+    final min = total ~/ 60;
+    final sec = total % 60;
+    return '${min.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +61,10 @@ class FullPlayerScreen extends StatelessWidget {
       );
     }
 
+    final duration = songProvider.totalDuration > 0
+        ? songProvider.totalDuration
+        : song.duration;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(song.title, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -27,7 +74,7 @@ class FullPlayerScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const Spacer(),
+            const Spacer(flex: 1),
 
             // Cover Art
             Container(
@@ -61,7 +108,7 @@ class FullPlayerScreen extends StatelessWidget {
               ),
             ),
 
-            const Spacer(),
+            const Spacer(flex: 1),
 
             // Song Info
             Padding(
@@ -142,30 +189,48 @@ class FullPlayerScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
-            // Progress bar (simulado)
+            // Progress bar (real)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: 0.3,
-                  minHeight: 4,
-                  backgroundColor: Colors.grey[800],
-                  color: Theme.of(context).colorScheme.primary,
+              child: SliderTheme(
+                data: SliderThemeData(
+                  trackHeight: 4,
+                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                  activeTrackColor: Theme.of(context).colorScheme.primary,
+                  inactiveTrackColor: Colors.grey[800],
+                  thumbColor: Theme.of(context).colorScheme.primary,
+                  overlayColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                ),
+                child: Slider(
+                  value: duration > 0 ? _sliderPosition.clamp(0, duration) : 0,
+                  max: duration > 0 ? duration : 1,
+                  onChanged: (value) {
+                    setState(() {
+                      _sliderPosition = value;
+                      _isDragging = true;
+                    });
+                  },
+                  onChangeEnd: (value) {
+                    _isDragging = false;
+                    songProvider.seekTo(value);
+                  },
                 ),
               ),
             ),
 
             // Tiempos
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('1:23', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                  Text(song.formattedDuration, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                  Text(_formatTime(_sliderPosition),
+                      style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                  Text(_formatTime(duration),
+                      style: TextStyle(color: Colors.grey[500], fontSize: 12)),
                 ],
               ),
             ),
@@ -181,45 +246,37 @@ class FullPlayerScreen extends StatelessWidget {
                   iconSize: 36,
                   icon: const Icon(Icons.skip_previous_rounded),
                   color: Colors.white70,
-                  onPressed: () {
-                    _changeSong(context, -1);
-                  },
+                  onPressed: () => songProvider.playPrevious(),
                 ),
 
-                const SizedBox(width: 24),
+                const SizedBox(width: 32),
 
                 // Play/Pause
-                Consumer<SongProvider>(
-                  builder: (context, songProvider, _) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      child: IconButton(
-                        iconSize: 48,
-                        icon: Icon(
-                          songProvider.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                        ),
-                        color: Colors.white,
-                        onPressed: () {
-                          songProvider.setPlaying(!songProvider.isPlaying);
-                        },
-                      ),
-                    );
-                  },
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: IconButton(
+                    iconSize: 48,
+                    icon: Icon(
+                      songProvider.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    ),
+                    color: Colors.white,
+                    onPressed: () {
+                      songProvider.setPlaying(!songProvider.isPlaying);
+                    },
+                  ),
                 ),
 
-                const SizedBox(width: 24),
+                const SizedBox(width: 32),
 
                 // Next
                 IconButton(
                   iconSize: 36,
                   icon: const Icon(Icons.skip_next_rounded),
                   color: Colors.white70,
-                  onPressed: () {
-                    _changeSong(context, 1);
-                  },
+                  onPressed: () => songProvider.playNext(),
                 ),
               ],
             ),
@@ -244,25 +301,10 @@ class FullPlayerScreen extends StatelessWidget {
               ],
             ),
 
-            const Spacer(),
+            const Spacer(flex: 1),
           ],
         ),
       ),
     );
-  }
-
-  void _changeSong(BuildContext context, int direction) {
-    final songProvider = context.read<SongProvider>();
-    final songs = songProvider.songs;
-    if (songs.isEmpty) return;
-
-    final currentIndex = songs.indexWhere((s) => s.id == songProvider.currentSong?.id);
-    int newIndex = currentIndex + direction;
-
-    if (newIndex < 0) newIndex = songs.length - 1;
-    if (newIndex >= songs.length) newIndex = 0;
-
-    songProvider.setCurrentSong(songs[newIndex]);
-    songProvider.setPlaying(true);
   }
 }

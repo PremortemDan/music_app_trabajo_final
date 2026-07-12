@@ -4,8 +4,6 @@ import 'providers/auth_provider.dart';
 import 'providers/song_provider.dart';
 import 'providers/artist_provider.dart';
 import 'screens/splash_screen.dart';
-import 'screens/auth/login_screen.dart';
-import 'screens/main_shell.dart';
 
 void main() {
   runApp(const MusicApp());

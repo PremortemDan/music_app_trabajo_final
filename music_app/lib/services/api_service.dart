@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   // Cambia esta URL según tu entorno
-  static const String baseUrl = 'http://127.0.0.1:3000/api';
+  static const String baseUrl = 'http://192.168.1.9:3000/api';
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();

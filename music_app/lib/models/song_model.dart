@@ -56,7 +56,8 @@ class SongModel {
     );
   }
 
-  String get audioUrl => 'http://10.0.2.2:3000${filePath.replaceAll('/uploads/', '/api/stream/')}';
+  // URL para streaming (usa el ID de la canción, no el filePath)
+  String get audioUrl => 'http://10.0.2.2:3000/api/stream/$id';
   String? get coverUrl => coverImage != null ? 'http://10.0.2.2:3000$coverImage' : null;
 
   String get formattedDuration {
