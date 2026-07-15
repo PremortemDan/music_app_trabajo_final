@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import prisma from '../lib/prisma';
 
 export interface AuthRequest extends Request {
   userId?: string;
@@ -34,9 +35,23 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
 }
 
 export function requireCreator(req: AuthRequest, res: Response, next: NextFunction): void {
-  if (!req.userCreator) {
-    res.status(403).json({ error: 'Se requiere ser creador para realizar esta acción' });
+  // Si el JWT ya indica creator: true, permitir
+  if (req.userCreator) {
+    next();
     return;
   }
-  next();
+
+  // Fallback: verificar en la BD (el usuario pudo haberse registrado como creador después del login)
+  prisma.user.findUnique({ where: { id: req.userId }, select: { creator: true } })
+    .then(user => {
+      if (user?.creator) {
+        req.userCreator = true;
+        next();
+      } else {
+        res.status(403).json({ error: 'Se requiere ser creador para realizar esta acción' });
+      }
+    })
+    .catch(() => {
+      res.status(500).json({ error: 'Error al verificar permisos' });
+    });
 }

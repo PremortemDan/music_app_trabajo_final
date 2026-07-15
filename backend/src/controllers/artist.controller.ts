@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 import { AuthRequest } from '../middleware/auth.middleware';
 
@@ -102,8 +103,7 @@ export async function registerAsCreator(req: AuthRequest, res: Response): Promis
     });
 
     // Generar nuevo token JWT con creator: true
-    const jwt = await import('jsonwebtoken');
-    const token = jwt.default.sign(
+    const token = jwt.sign(
       { userId: updatedUser.id, creator: updatedUser.creator },
       process.env.JWT_SECRET || 'secret',
       { expiresIn: '7d' }
