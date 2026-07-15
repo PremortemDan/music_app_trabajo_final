@@ -95,14 +95,25 @@ export async function registerAsCreator(req: AuthRequest, res: Response): Promis
     });
 
     // Actualizar creator flag en el usuario
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { creator: true },
+      select: { id: true, email: true, username: true, avatar: true, creator: true },
     });
+
+    // Generar nuevo token JWT con creator: true
+    const jwt = await import('jsonwebtoken');
+    const token = jwt.default.sign(
+      { userId: updatedUser.id, creator: updatedUser.creator },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '7d' }
+    );
 
     res.status(201).json({
       message: 'Perfil de creador registrado exitosamente',
       artistProfile,
+      token,
+      user: updatedUser,
     });
   } catch (error) {
     console.error('Error en registerAsCreator:', error);
