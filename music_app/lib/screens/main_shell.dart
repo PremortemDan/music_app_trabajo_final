@@ -31,6 +31,7 @@ class _MainShellState extends State<MainShell> {
     final artistProvider = context.read<ArtistProvider>();
 
     await Future.wait([
+      songProvider.loadHomeSections(),
       songProvider.loadSongs(),
       songProvider.loadLikedSongs(),
       artistProvider.loadArtists(),

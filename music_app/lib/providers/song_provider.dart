@@ -16,6 +16,13 @@ class SongProvider extends ChangeNotifier {
   bool _isPlaying = false;
   int _totalSongs = 0;
 
+  // Secciones del home
+  List<SongModel> _mostPlayed = [];
+  List<SongModel> _recentSongs = [];
+  List<SongModel> _monthlyTop = [];
+  Map<String, List<SongModel>> _genreSections = {};
+  bool _sectionsLoaded = false;
+
   // Estado del reproductor
   double _currentPosition = 0;
   double _totalDuration = 0;
@@ -30,6 +37,13 @@ class SongProvider extends ChangeNotifier {
   double get currentPosition => _currentPosition;
   double get totalDuration => _totalDuration;
   AudioPlayer get player => _player;
+
+  // Secciones del home
+  List<SongModel> get mostPlayed => _mostPlayed;
+  List<SongModel> get recentSongs => _recentSongs;
+  List<SongModel> get monthlyTop => _monthlyTop;
+  Map<String, List<SongModel>> get genreSections => _genreSections;
+  bool get sectionsLoaded => _sectionsLoaded;
 
   SongProvider() {
     // Usar scheduleMicrotask para evitar notifyListeners durante build
@@ -247,6 +261,70 @@ class SongProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  /// Carga todas las secciones del home en paralelo
+  Future<void> loadHomeSections() async {
+    if (_sectionsLoaded) return;
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final results = await Future.wait([
+        _fetchSection(orderBy: 'plays', limit: 10),           // Lo más escuchado
+        _fetchSection(orderBy: 'createdAt', limit: 10),       // Lo más reciente
+        _fetchSection(orderBy: 'plays', limit: 10, sinceMonths: 1), // Lo mejor del mes
+        _fetchSection(genre: 'Rock', orderBy: 'plays', limit: 10),
+        _fetchSection(genre: 'Pop', orderBy: 'plays', limit: 10),
+        _fetchSection(genre: 'Electrónica', orderBy: 'plays', limit: 10),
+        _fetchSection(genre: 'Hip Hop', orderBy: 'plays', limit: 10),
+      ]);
+
+      _mostPlayed = results[0];
+      _recentSongs = results[1];
+      _monthlyTop = results[2];
+
+      _genreSections = {
+        'Rock': results[3],
+        'Pop': results[4],
+        'Electrónica': results[5],
+        'Hip Hop': results[6],
+      }..removeWhere((_, list) => list.isEmpty);
+
+      _sectionsLoaded = true;
+    } catch (e) {
+      debugPrint('Error cargando secciones: $e');
+      _mostPlayed = [];
+      _recentSongs = [];
+      _monthlyTop = [];
+      _genreSections = {};
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<List<SongModel>> _fetchSection({
+    String? genre,
+    String? orderBy,
+    int limit = 10,
+    int? sinceMonths,
+  }) async {
+    String query = '?limit=$limit';
+    if (genre != null) query += '&genre=$genre';
+    if (orderBy != null) query += '&orderBy=$orderBy';
+    if (sinceMonths != null) {
+      final since = DateTime.now().subtract(Duration(days: 30 * sinceMonths));
+      query += '&since=${since.toIso8601String()}';
+    }
+
+    final data = await ApiService.get('/songs$query', auth: false);
+    final List<dynamic> songsJson = data['songs'];
+    return songsJson.map((json) => SongModel.fromJson(json)).toList();
+  }
+
+  void resetSections() {
+    _sectionsLoaded = false;
   }
 
   Future<void> deleteSong(String songId) async {
