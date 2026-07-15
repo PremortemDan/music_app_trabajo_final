@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/artist_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class RegisterCreatorScreen extends StatefulWidget {
   const RegisterCreatorScreen({super.key});
@@ -56,6 +57,9 @@ class _RegisterCreatorScreenState extends State<RegisterCreatorScreen> {
     if (!mounted) return;
 
     if (success) {
+      // Refrescar el usuario en AuthProvider para que isCreator sea true
+      await context.read<AuthProvider>().refreshUser();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('¡Te has registrado como creador exitosamente!'),

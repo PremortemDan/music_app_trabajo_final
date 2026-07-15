@@ -22,6 +22,7 @@ class SongProvider extends ChangeNotifier {
   List<SongModel> _monthlyTop = [];
   Map<String, List<SongModel>> _genreSections = {};
   bool _sectionsLoaded = false;
+  String? _lastError;
 
   // Estado del reproductor
   double _currentPosition = 0;
@@ -44,6 +45,7 @@ class SongProvider extends ChangeNotifier {
   List<SongModel> get monthlyTop => _monthlyTop;
   Map<String, List<SongModel>> get genreSections => _genreSections;
   bool get sectionsLoaded => _sectionsLoaded;
+  String? get lastError => _lastError;
 
   SongProvider() {
     // Usar scheduleMicrotask para evitar notifyListeners durante build
@@ -253,10 +255,13 @@ class SongProvider extends ChangeNotifier {
       );
 
       await loadMySongs();
+      _lastError = null;
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
+      debugPrint('Error al subir canción: $e');
+      _lastError = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;

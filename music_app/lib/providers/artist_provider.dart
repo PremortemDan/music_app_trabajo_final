@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
@@ -58,6 +59,7 @@ class ArtistProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      dynamic data;
       if (imagePath != null) {
         final fields = <String, String>{
           'artistName': artistName,
@@ -67,19 +69,28 @@ class ArtistProvider extends ChangeNotifier {
         if (website != null) fields['website'] = website;
         if (instagram != null) fields['instagram'] = instagram;
 
-        await ApiService.multipartPost(
+        data = await ApiService.multipartPost(
           '/artists/register',
           fields: fields,
           files: [MapEntry('image', File(imagePath))],
         );
       } else {
-        await ApiService.post('/artists/register', body: {
+        data = await ApiService.post('/artists/register', body: {
           'artistName': artistName,
           if (bio != null) 'bio': bio,
           if (genre != null) 'genre': genre,
           if (website != null) 'website': website,
           if (instagram != null) 'instagram': instagram,
         });
+      }
+
+      // Guardar el nuevo token JWT y actualizar el usuario guardado
+      if (data['token'] != null && data['user'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', data['token']);
+        // Nota: AuthProvider.loadUserFromToken() o refreshUser debe ejecutarse
+        // para que _user.creator se actualice. Pero dado que usamos el token
+        // nuevo en la siguiente petición, con eso basta.
       }
 
       await loadMyProfile();

@@ -61,13 +61,17 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
     }
 
     final songProvider = context.read<SongProvider>();
+    String? errorMsg;
     final success = await songProvider.uploadSong(
       title: _titleController.text.trim(),
       genre: _genreController.text.trim().isNotEmpty ? _genreController.text.trim() : null,
       isPublic: _isPublic,
       songPath: _songPath!,
       coverPath: _coverPath,
-    );
+    ).catchError((e) {
+      errorMsg = e.toString();
+      return false;
+    });
 
     if (!mounted) return;
 
@@ -81,9 +85,10 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al subir la canción'),
+        SnackBar(
+          content: Text(errorMsg ?? 'Error al subir la canción. Verifica tu conexión.'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
         ),
       );
     }
