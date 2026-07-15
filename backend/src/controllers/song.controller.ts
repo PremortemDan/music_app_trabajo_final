@@ -4,7 +4,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 
 export async function getSongs(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const { genre, search, artistId, albumId, limit, offset } = req.query;
+    const { genre, search, artistId, albumId, limit, offset, orderBy, order, since } = req.query;
 
     const where: any = { isPublic: true };
 
@@ -15,6 +15,17 @@ export async function getSongs(req: AuthRequest, res: Response): Promise<void> {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
       ];
+    }
+    if (since) {
+      where.createdAt = { gte: new Date(since as string) };
+    }
+
+    // Determinar ordenamiento
+    let orderByClause: any = { createdAt: 'desc' };
+    if (orderBy === 'plays') {
+      orderByClause = { plays: order === 'asc' ? 'asc' : 'desc' };
+    } else if (orderBy === 'createdAt') {
+      orderByClause = { createdAt: order === 'asc' ? 'asc' : 'desc' };
     }
 
     const songs = await prisma.song.findMany({
@@ -30,7 +41,7 @@ export async function getSongs(req: AuthRequest, res: Response): Promise<void> {
           select: { id: true, title: true, cover: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: orderByClause,
       take: limit ? parseInt(limit as string) : 50,
       skip: offset ? parseInt(offset as string) : 0,
     });
