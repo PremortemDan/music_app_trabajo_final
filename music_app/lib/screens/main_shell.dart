@@ -9,6 +9,7 @@ import 'library/library_screen.dart';
 import 'creator/creator_screen.dart';
 import 'player/mini_player.dart';
 import 'player/full_player_screen.dart';
+import 'auth/login_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -24,6 +25,31 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     _loadInitialData();
+    
+    // Escuchar cambios de autenticación para redirigir al login al cerrar sesión
+    final authProvider = context.read<AuthProvider>();
+    authProvider.addListener(_onAuthChanged);
+  }
+
+  void _onAuthChanged() {
+    final authProvider = context.read<AuthProvider>();
+    if (!authProvider.isLoggedIn) {
+      // Usar addPostFrameCallback para evitar conflicto con el rebuild en curso
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    context.read<AuthProvider>().removeListener(_onAuthChanged);
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
