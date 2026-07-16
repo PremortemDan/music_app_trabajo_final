@@ -4,8 +4,10 @@ import '../../providers/auth_provider.dart';
 import '../../providers/song_provider.dart';
 import '../../providers/artist_provider.dart';
 import '../../services/biometric_service.dart';
+import '../../providers/analytics_provider.dart';
 import 'register_creator_screen.dart';
 import 'upload_song_screen.dart';
+import 'metrics_screen.dart';
 
 class CreatorScreen extends StatefulWidget {
   const CreatorScreen({super.key});
@@ -149,6 +151,21 @@ class _CreatorScreenState extends State<CreatorScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.analytics_outlined),
+                              tooltip: 'Métricas',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChangeNotifierProvider(
+                                      create: (_) => AnalyticsProvider(),
+                                      child: const MetricsScreen(),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                             if (profile.verified)
                               const Icon(Icons.verified, color: Colors.blue, size: 20),

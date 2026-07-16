@@ -244,15 +244,47 @@ export async function incrementPlays(req: AuthRequest, res: Response): Promise<v
   try {
     const { id } = req.params;
 
-    const song = await prisma.song.update({
+    const song = await prisma.song.findUnique({
       where: { id },
-      data: {
-        plays: { increment: 1 },
-      },
+      select: { id: true, ownerId: true },
     });
 
-    res.json({ plays: song.plays });
+    if (!song) {
+      res.status(404).json({ error: 'Canción no encontrada' });
+      return;
+    }
+
+    // Obtener IP y User-Agent
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || null;
+    const userAgent = (req.headers['user-agent'] as string) || null;
+
+    // Usar el country del usuario autenticado si existe
+    const userCountry = req.userId
+      ? (await prisma.user.findUnique({ where: { id: req.userId }, select: { country: true } }))?.country
+      : null;
+
+    // Registrar el stream
+    await prisma.$transaction([
+      prisma.song.update({
+        where: { id },
+        data: { plays: { increment: 1 } },
+      }),
+      prisma.streamRecord.create({
+        data: {
+          songId: id,
+          ownerId: song.ownerId,
+          userId: req.userId || null,
+          ip,
+          userAgent,
+          country: userCountry || null,
+        },
+      }),
+    ]);
+
+    const updatedSong = await prisma.song.findUnique({ where: { id }, select: { plays: true } });
+    res.json({ plays: updatedSong?.plays || 0 });
   } catch (error) {
+    console.error('Error en incrementPlays:', error);
     res.status(500).json({ error: 'Error al registrar reproducción' });
   }
 }

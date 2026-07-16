@@ -22,6 +22,7 @@ model User {
   songs         Song[]
   likedSongs    LikedSong[]
   playlists     Playlist[]
+  streamRecords StreamRecord[]
 
   @@map("users")
 }
@@ -77,11 +78,12 @@ model Song {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  owner    User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  artist   ArtistProfile? @relation(fields: [artistId], references: [id], onDelete: SetNull)
-  album    Album?        @relation(fields: [albumId], references: [id], onDelete: SetNull)
-  likedBy  LikedSong[]
-  inPlaylists PlaylistSong[]
+  owner         User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  artist        ArtistProfile? @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  album         Album?         @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  likedBy       LikedSong[]
+  inPlaylists   PlaylistSong[]
+  streamRecords StreamRecord[]
 
   @@map("songs")
 }
@@ -112,6 +114,26 @@ model Playlist {
   songs PlaylistSong[]
 
   @@map("playlists")
+}
+
+model StreamRecord {
+  id        String   @id @default(uuid())
+  songId    String   @map("song_id")
+  userId    String?  @map("user_id")
+  ownerId   String   @map("owner_id")
+  ip        String?
+  userAgent String?  @map("user_agent")
+  country   String?
+  city      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  song  Song  @relation(fields: [songId], references: [id], onDelete: Cascade)
+  owner User  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, createdAt])
+  @@index([songId, createdAt])
+  @@index([createdAt])
+  @@map("stream_records")
 }
 
 model PlaylistSong {

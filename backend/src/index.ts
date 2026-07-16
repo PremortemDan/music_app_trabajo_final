@@ -9,6 +9,7 @@ import { songRoutes } from './routes/song.routes';
 import { albumRoutes } from './routes/album.routes';
 import { playlistRoutes } from './routes/playlist.routes';
 import { streamRoutes } from './routes/stream.routes';
+import { analyticsRoutes } from './routes/analytics.routes';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use('/api/songs', songRoutes);
 app.use('/api/albums', albumRoutes);
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/stream', streamRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Ruta de health check
 app.get('/api/health', (_req, res) => {
