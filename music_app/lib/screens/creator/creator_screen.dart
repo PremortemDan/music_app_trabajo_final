@@ -164,19 +164,27 @@ class _CreatorScreenState extends State<CreatorScreen> {
                                   ),
                                 );
                               },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.analytics_outlined, size: 26),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Métricas',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey[400],
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xff9bd49f),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.analytics_outlined, size: 36, color: Colors.white),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'Métricas',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                             if (profile.verified)
