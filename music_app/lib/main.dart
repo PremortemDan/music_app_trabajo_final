@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/song_provider.dart';
 import 'providers/artist_provider.dart';
+import 'providers/chat_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/shake_service.dart';
 
@@ -45,6 +46,7 @@ class _MusicAppState extends State<MusicApp> {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SongProvider()),
         ChangeNotifierProvider(create: (_) => ArtistProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

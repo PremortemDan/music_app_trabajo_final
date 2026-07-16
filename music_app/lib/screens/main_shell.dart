@@ -10,6 +10,8 @@ import 'creator/creator_screen.dart';
 import 'player/mini_player.dart';
 import 'player/full_player_screen.dart';
 import 'auth/login_screen.dart';
+import 'chat/conversations_screen.dart';
+import '../providers/chat_provider.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -82,7 +84,60 @@ class _MainShellState extends State<MainShell> {
       const CreatorScreen(),
     ];
 
+    final chatProvider = context.watch<ChatProvider>();
+    final unreadTotal = chatProvider.totalUnread;
+
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chat_outlined),
+                  tooltip: 'Chats',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ConversationsScreen(),
+                      ),
+                    );
+                  },
+                ),
+                if (unreadTotal > 0)
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1DB954),
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$unreadTotal',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: Stack(
         children: [
           screens[_currentIndex],
