@@ -22,12 +22,12 @@ RUN npx prisma generate
 RUN npm run build
 
 # ---- Etapa de producción ----
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-# Solo lo necesario para runtime
-RUN apk add --no-cache python3 make g++
+# Solo lo necesario para runtime (bcrypt requiere python3 make g++)
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ openssl libssl-dev && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/package.json /app/package-lock.json ./
 RUN npm ci --omit=dev
