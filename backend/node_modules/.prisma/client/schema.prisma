@@ -13,6 +13,7 @@ model User {
   username  String   @unique
   password  String
   avatar    String?
+  country   String?
   creator   Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

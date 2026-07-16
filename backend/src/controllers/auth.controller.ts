@@ -6,7 +6,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 
 export async function register(req: Request, res: Response): Promise<void> {
   try {
-    const { email, username, password } = req.body;
+    const { email, username, password, country } = req.body;
 
     if (!email || !username || !password) {
       res.status(400).json({ error: 'Email, username y password son requeridos' });
@@ -32,6 +32,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         email,
         username,
         password: hashedPassword,
+        country: country || null,
         creator: false,
       },
       select: {
@@ -39,8 +40,10 @@ export async function register(req: Request, res: Response): Promise<void> {
         email: true,
         username: true,
         avatar: true,
+        country: true,
         creator: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
 
