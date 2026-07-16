@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/artist_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/biometric_service.dart';
 
 class RegisterCreatorScreen extends StatefulWidget {
   const RegisterCreatorScreen({super.key});
@@ -43,6 +44,38 @@ class _RegisterCreatorScreenState extends State<RegisterCreatorScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Verificar disponibilidad de autenticación primero
+    final isAvailable = await BiometricService.isAvailable();
+    
+    if (!mounted) return;
+
+    if (!isAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tu dispositivo no tiene configurada huella, PIN o patrón. Ve a Ajustes para configurarlo.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Solicitar autenticación biométrica (huella, PIN o patrón)
+    final authenticated = await BiometricService.authenticate(
+      reason: 'Autentícate para registrarte como creador',
+    );
+
+    if (!mounted) return;
+
+    if (!authenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Autenticación fallida o cancelada'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     final artistProvider = context.read<ArtistProvider>();
     final success = await artistProvider.registerAsCreator(

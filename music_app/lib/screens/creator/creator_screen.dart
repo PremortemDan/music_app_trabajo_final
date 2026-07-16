@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/song_provider.dart';
 import '../../providers/artist_provider.dart';
+import '../../services/biometric_service.dart';
 import 'register_creator_screen.dart';
 import 'upload_song_screen.dart';
 
@@ -266,9 +267,39 @@ class _CreatorScreenState extends State<CreatorScreen> {
                                 child: const Text('Cancelar'),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  context.read<SongProvider>().deleteSong(song.id);
+                                onPressed: () async {
                                   Navigator.pop(ctx);
+                                  
+                                  // Verificar disponibilidad primero
+                                  final isAvailable = await BiometricService.isAvailable();
+                                  if (!ctx.mounted) return;
+                                  
+                                  if (!isAvailable) {
+                                    ScaffoldMessenger.of(ctx).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Tu dispositivo no tiene configurada huella, PIN o patrón. Ve a Ajustes para configurarlo.'),
+                                        backgroundColor: Colors.orange,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  
+                                  // Solicitar autenticación biométrica
+                                  final authenticated = await BiometricService.authenticate(
+                                    reason: 'Autentícate para eliminar "${song.title}"',
+                                  );
+                                  if (!ctx.mounted) return;
+                                  
+                                  if (authenticated) {
+                                    context.read<SongProvider>().deleteSong(song.id);
+                                  } else {
+                                    ScaffoldMessenger.of(ctx).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Autenticación fallida o cancelada. Canción no eliminada.'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 },
                                 child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
                               ),
