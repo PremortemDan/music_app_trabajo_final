@@ -57,8 +57,8 @@ class SongModel {
   }
 
   // URL para streaming (usa el ID de la canción, no el filePath)
-  String get audioUrl => 'http://192.168.1.9:3000/api/stream/$id';
-  String? get coverUrl => coverImage != null ? 'http://192.168.1.9:3000$coverImage' : null;
+  String get audioUrl => 'http://136.111.206.85:3000/api/stream/$id';
+  String? get coverUrl => coverImage != null ? 'http://136.111.206.85:3000$coverImage' : null;
 
   String get formattedDuration {
     final totalSeconds = duration.toInt();

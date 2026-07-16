@@ -127,7 +127,7 @@ class _CreatorScreenState extends State<CreatorScreen> {
                     radius: 40,
                     backgroundColor: Colors.grey[800],
                     backgroundImage: profile.image != null
-                        ? NetworkImage('http://192.168.1.9:3000${profile.image}')
+                        ? NetworkImage('http://136.111.206.85:3000${profile.image}')
                         : null,
                     child: profile.image == null
                         ? Text(
