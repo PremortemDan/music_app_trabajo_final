@@ -62,9 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.black, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    title: Text(
-                      authProvider.user!.username,
-                    ),
+                    title: Text(authProvider.user!.username),
                     subtitle: Text(
                       authProvider.user!.email,
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
@@ -153,11 +151,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ...songProvider.genreSections.entries.map((entry) {
-                    final icon = _genreIcon(entry.key);
                     return SliverToBoxAdapter(
                       child: _buildHorizontalSection(
                         context,
-                        '$icon Lo más popular en ${entry.key}',
+                        'Lo más popular en ${entry.key}',
                         entry.value,
                       ),
                     );
@@ -234,9 +231,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         SizedBox(
-          height: 220,
+          height: 240,
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: songs.length,
             itemBuilder: (context, index) {
@@ -264,12 +261,14 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
                 ),
               ),
               if (songs.length > 6)
@@ -285,9 +284,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         SizedBox(
-          height: 180,
+          height: 210,
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
             itemCount: songs.length,
             itemBuilder: (context, index) {
@@ -312,35 +311,6 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(builder: (_) => const FullPlayerScreen()),
     );
   }
-
-  String _genreIcon(String genre) {
-    switch (genre.toLowerCase()) {
-      case 'rock':
-        return 'Rock';
-      case 'pop':
-        return 'Pop';
-      case 'electrónica':
-      case 'electronica':
-        return 'Electrónica';
-      case 'hip hop':
-      case 'hip-hop':
-        return 'Hip Hop';
-      case 'reggaeton':
-      case 'reguetón':
-        return 'Reggaetón';
-      case 'jazz':
-        return 'Jazz';
-      case 'clásica':
-      case 'clasica':
-        return 'Clásica';
-      case 'salsa':
-        return 'Salsa';
-      case 'metal':
-        return 'Metal';
-      default:
-        return genre;
-    }
-  }
 }
 
 // ─── Tarjeta Hero (Lo más escuchado) ───
@@ -359,7 +329,7 @@ class _HeroCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 180,
-        margin: const EdgeInsets.only(right: 12),
+        margin: const EdgeInsets.only(right: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
@@ -500,14 +470,15 @@ class _HorizontalSongCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 140,
-        margin: const EdgeInsets.only(right: 12),
+        margin: const EdgeInsets.only(right: 14),
+        width: 150,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 140,
-              height: 140,
+              width: 150,
+              height: 150,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.grey[850],
@@ -526,8 +497,8 @@ class _HorizontalSongCard extends StatelessWidget {
                     child: song.coverUrl != null
                         ? Image.network(song.coverUrl!,
                             fit: BoxFit.cover,
-                            width: 140,
-                            height: 140,
+                            width: 150,
+                            height: 150,
                             errorBuilder: (_, __, ___) => _defaultCover())
                         : _defaultCover(),
                   ),
@@ -555,24 +526,30 @@ class _HorizontalSongCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              song.title,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Text(
+                song.title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 2),
-            Text(
-              song.artist?.artistName ?? 'Desconocido',
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 11,
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Text(
+                song.artist?.artistName ?? 'Desconocido',
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 11,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -582,8 +559,8 @@ class _HorizontalSongCard extends StatelessWidget {
 
   Widget _defaultCover() {
     return Container(
-      width: 140,
-      height: 140,
+      width: 150,
+      height: 150,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
