@@ -4,13 +4,39 @@ import 'providers/auth_provider.dart';
 import 'providers/song_provider.dart';
 import 'providers/artist_provider.dart';
 import 'screens/splash_screen.dart';
+import 'services/shake_service.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   runApp(const MusicApp());
 }
 
-class MusicApp extends StatelessWidget {
+class MusicApp extends StatefulWidget {
   const MusicApp({super.key});
+
+  @override
+  State<MusicApp> createState() => _MusicAppState();
+}
+
+class _MusicAppState extends State<MusicApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Iniciar detector de sacudidas después del primer frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        ShakeService().startListening(context);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    ShakeService().stopListening();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +47,7 @@ class MusicApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ArtistProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         title: 'MusicApp',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

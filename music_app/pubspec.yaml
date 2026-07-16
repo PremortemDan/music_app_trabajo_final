@@ -47,6 +47,7 @@ dependencies:
   local_auth_android: ^2.0.9
   local_auth_darwin: ^2.0.3
   fl_chart: ^0.70.2
+  sensors_plus: ^6.1.1
 
 dev_dependencies:
   flutter_test:
