@@ -90,7 +90,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       ),
                     ),
                     title: Text(user.username),
-                    trailing: const Icon(Icons.send_outlined, color: Color(0xFF1DB954)),
+                    trailing: const Icon(Icons.send_outlined, color: Color(0xff9bd49f)),
                     onTap: () async {
                       _searchController.clear();
                       provider.clearSearch();
@@ -170,7 +170,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                           width: 14,
                                           height: 14,
                                           decoration: const BoxDecoration(
-                                            color: Color(0xFF1DB954),
+                                            color: Color(0xff9bd49f),
                                             shape: BoxShape.circle,
                                           ),
                                           child: Center(

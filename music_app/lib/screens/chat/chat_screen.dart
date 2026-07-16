@@ -151,7 +151,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
                                 color: isMine
-                                    ? const Color(0xFF1DB954)
+                                    ? const Color(0xff9bd49f)
                                     : Colors.grey[800],
                                 borderRadius: BorderRadius.only(
                                   topLeft: const Radius.circular(16),
@@ -238,7 +238,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(width: 8),
                   Container(
                     decoration: const BoxDecoration(
-                      color: Color(0xFF1DB954),
+                      color: Color(0xff9bd49f),
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(

@@ -82,62 +82,13 @@ class _MainShellState extends State<MainShell> {
       const SearchScreen(),
       const LibraryScreen(),
       const CreatorScreen(),
+      const ConversationsScreen(),
     ];
 
     final chatProvider = context.watch<ChatProvider>();
     final unreadTotal = chatProvider.totalUnread;
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Stack(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chat_outlined),
-                  tooltip: 'Chats',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ConversationsScreen(),
-                      ),
-                    );
-                  },
-                ),
-                if (unreadTotal > 0)
-                  Positioned(
-                    right: 6,
-                    top: 6,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1DB954),
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$unreadTotal',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
       body: Stack(
         children: [
           screens[_currentIndex],
@@ -198,6 +149,21 @@ class _MainShellState extends State<MainShell> {
               icon: const Icon(Icons.mic_outlined),
               activeIcon: const Icon(Icons.mic),
               label: authProvider.isCreator ? 'Creador' : 'Creador',
+            ),
+            BottomNavigationBarItem(
+              icon: unreadTotal > 0
+                  ? Badge(
+                      label: Text('$unreadTotal'),
+                      child: const Icon(Icons.chat_outlined),
+                    )
+                  : const Icon(Icons.chat_outlined),
+              activeIcon: unreadTotal > 0
+                  ? Badge(
+                      label: Text('$unreadTotal'),
+                      child: const Icon(Icons.chat),
+                    )
+                  : const Icon(Icons.chat),
+              label: 'Chats',
             ),
           ],
         ),
