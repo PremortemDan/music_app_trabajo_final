@@ -18,6 +18,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  String? _selectedCountry;
+
+  final List<String> _countries = [
+    'Argentina',
+    'Bolivia',
+    'Chile',
+    'Colombia',
+    'Costa Rica',
+    'Cuba',
+    'Ecuador',
+    'El Salvador',
+    'España',
+    'Guatemala',
+    'Honduras',
+    'México',
+    'Nicaragua',
+    'Panamá',
+    'Paraguay',
+    'Perú',
+    'República Dominicana',
+    'Uruguay',
+    'Venezuela',
+    'Estados Unidos',
+    'Otro',
+  ];
 
   @override
   void dispose() {
@@ -36,6 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _emailController.text.trim(),
       _usernameController.text.trim(),
       _passwordController.text,
+      country: _selectedCountry,
     );
 
     if (!mounted) return;
@@ -145,6 +171,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (value != _passwordController.text) return 'Las contraseñas no coinciden';
                       return null;
                     },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCountry,
+                    decoration: InputDecoration(
+                      labelText: 'País',
+                      prefixIcon: const Icon(Icons.public),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    items: _countries.map((country) {
+                      return DropdownMenuItem(
+                        value: country,
+                        child: Text(country),
+                      );
+                    }).toList(),
+                    onChanged: (value) => setState(() => _selectedCountry = value),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(

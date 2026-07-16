@@ -3,6 +3,7 @@ class UserModel {
   final String email;
   final String username;
   final String? avatar;
+  final String? country;
   final bool creator;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -13,6 +14,7 @@ class UserModel {
     required this.email,
     required this.username,
     this.avatar,
+    this.country,
     required this.creator,
     required this.createdAt,
     required this.updatedAt,
@@ -25,9 +27,14 @@ class UserModel {
       email: json['email'],
       username: json['username'],
       avatar: json['avatar'],
+      country: json['country'],
       creator: json['creator'] ?? false,
-      createdAt: DateTime.parse(json['created_at'] ?? json['createdAt']),
-      updatedAt: DateTime.parse(json['updated_at'] ?? json['updatedAt']),
+      createdAt: (json['created_at'] ?? json['createdAt']) != null
+          ? DateTime.parse(json['created_at'] ?? json['createdAt'])
+          : DateTime.now(),
+      updatedAt: (json['updated_at'] ?? json['updatedAt']) != null
+          ? DateTime.parse(json['updated_at'] ?? json['updatedAt'])
+          : DateTime.now(),
       artistProfile: json['artistProfile'] != null
           ? ArtistProfileModel.fromJson(json['artistProfile'])
           : null,
@@ -40,6 +47,7 @@ class UserModel {
       'email': email,
       'username': username,
       'avatar': avatar,
+      'country': country,
       'creator': creator,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),

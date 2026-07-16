@@ -37,7 +37,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> register(String email, String username, String password) async {
+  Future<bool> register(String email, String username, String password, {String? country}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -45,7 +45,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final data = await ApiService.post(
         '/auth/register',
-        body: {'email': email, 'username': username, 'password': password},
+        body: {'email': email, 'username': username, 'password': password, 'country': country},
         auth: false,
       );
 
