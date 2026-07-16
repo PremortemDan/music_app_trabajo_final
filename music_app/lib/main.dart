@@ -36,7 +36,7 @@ class MusicApp extends StatelessWidget {
           ),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             backgroundColor: Color(0xFF1A1A1A),
-            selectedItemColor: Color(0xFF1DB954),
+            selectedItemColor: Color(0xff9bd49f),
             unselectedItemColor: Colors.grey,
           ),
         ),

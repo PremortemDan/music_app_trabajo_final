@@ -95,6 +95,8 @@ class _MainShellState extends State<MainShell> {
             });
           },
           type: BottomNavigationBarType.fixed,
+          selectedItemColor: const Color(0xff9bd49f),
+          unselectedItemColor: const Color(0xff9bd49f),
           items: [
             const BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
