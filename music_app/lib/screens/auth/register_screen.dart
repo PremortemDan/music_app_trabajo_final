@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/location_service.dart';
 import '../main_shell.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -18,31 +19,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
-  String? _selectedCountry;
+  String? _detectedCountry;
+  bool _isDetectingCountry = true;
 
-  final List<String> _countries = [
-    'Argentina',
-    'Bolivia',
-    'Chile',
-    'Colombia',
-    'Costa Rica',
-    'Cuba',
-    'Ecuador',
-    'El Salvador',
-    'España',
-    'Guatemala',
-    'Honduras',
-    'México',
-    'Nicaragua',
-    'Panamá',
-    'Paraguay',
-    'Perú',
-    'República Dominicana',
-    'Uruguay',
-    'Venezuela',
-    'Estados Unidos',
-    'Otro',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _detectCountry();
+  }
+
+  Future<void> _detectCountry() async {
+    final country = await LocationService.getCurrentCountry();
+    if (mounted) {
+      setState(() {
+        _detectedCountry = country;
+        _isDetectingCountry = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -61,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _emailController.text.trim(),
       _usernameController.text.trim(),
       _passwordController.text,
-      country: _selectedCountry,
+      country: _detectedCountry,
     );
 
     if (!mounted) return;
@@ -173,22 +167,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCountry,
-                    decoration: InputDecoration(
-                      labelText: 'País',
-                      prefixIcon: const Icon(Icons.public),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                  // Campo de país autodetectado
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade700),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    items: _countries.map((country) {
-                      return DropdownMenuItem(
-                        value: country,
-                        child: Text(country),
-                      );
-                    }).toList(),
-                    onChanged: (value) => setState(() => _selectedCountry = value),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    child: Row(
+                      children: [
+                        if (_isDetectingCountry)
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xff9bd49f),
+                            ),
+                          )
+                        else if (_detectedCountry != null)
+                          const Icon(Icons.gps_fixed, color: Color(0xff9bd49f), size: 20)
+                        else
+                          const Icon(Icons.gps_off, color: Colors.grey, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _isDetectingCountry
+                                ? 'Detectando ubicación...'
+                                : _detectedCountry ?? 'No se pudo detectar el país',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: _detectedCountry != null
+                                  ? Colors.white
+                                  : Colors.grey.shade400,
+                            ),
+                          ),
+                        ),
+                        if (!_isDetectingCountry)
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 18),
+                            color: Colors.grey,
+                            onPressed: () {
+                              setState(() {
+                                _isDetectingCountry = true;
+                                _detectedCountry = null;
+                              });
+                              _detectCountry();
+                            },
+                            tooltip: 'Reintentar detección',
+                          ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
