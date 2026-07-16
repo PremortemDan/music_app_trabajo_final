@@ -152,10 +152,8 @@ class _CreatorScreenState extends State<CreatorScreen> {
                                 ),
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.analytics_outlined),
-                              tooltip: 'Métricas',
-                              onPressed: () {
+                            GestureDetector(
+                              onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -166,6 +164,20 @@ class _CreatorScreenState extends State<CreatorScreen> {
                                   ),
                                 );
                               },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.analytics_outlined, size: 26),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Métricas',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             if (profile.verified)
                               const Icon(Icons.verified, color: Colors.blue, size: 20),

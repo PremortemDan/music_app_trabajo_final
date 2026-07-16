@@ -395,7 +395,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('🕐 Streams por hora (30 días)',
+        const Text('Streams por hora (30 días)',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         SizedBox(
@@ -479,7 +479,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('📅 Streams por día de la semana (30 días)',
+        const Text('Streams por día de la semana (30 días)',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         SizedBox(
@@ -561,7 +561,7 @@ class _MetricsScreenState extends State<MetricsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('🌎 Oyentes por país (30 días)',
+        const Text('Oyentes por país (30 días)',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Container(
